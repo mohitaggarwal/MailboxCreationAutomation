@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 
 namespace MailboxCreationAutomation.Model
 {
-	public class FoldersToCreate
+	public class CalendarsToCreate
 	{
 		public string Prefix { get; set; }
 		public int Count { get; set; }
 		public int Levels { get; set; }
-		public List<MailsToCreate> MailsToCreateList { get; set; }
+		public List<CalendarEventsToCreate> CalendarEventsToCreateList { get; set; }
 	}
 }

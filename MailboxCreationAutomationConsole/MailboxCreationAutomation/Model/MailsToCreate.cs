@@ -8,9 +8,11 @@ namespace MailboxCreationAutomation.Model
 {
 	public class MailsToCreate
 	{
+		public List<string> To { get; set; }
 		public string From { get; set; }
-		public int Mails { get; set; }
-		public int Attachments { get; set; }
-		public int AttachmentSizeInMB { get; set; }
+		public string Subject { get; set; }
+		public string BodyPath { get; set; }
+		public int Count { get; set; }
+		public List<AttachmentsToCreate> AttachmentsToCreateList { get; set; }
 	}
 }

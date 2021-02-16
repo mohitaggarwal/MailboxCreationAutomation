@@ -6,11 +6,9 @@ using System.Threading.Tasks;
 
 namespace MailboxCreationAutomation.Model
 {
-	public class FoldersToCreate
+	public class AttachmentsToCreate
 	{
-		public string Prefix { get; set; }
 		public int Count { get; set; }
-		public int Levels { get; set; }
-		public List<MailsToCreate> MailsToCreateList { get; set; }
+		public int AttachmentSizeInKB { get; set; }
 	}
 }

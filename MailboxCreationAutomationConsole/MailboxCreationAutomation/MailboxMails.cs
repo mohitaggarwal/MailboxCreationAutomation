@@ -19,71 +19,177 @@ namespace MailboxCreationAutomation
 			_EWSServiceWrapper = eWSServiceWrapper;
 		}
 
-		public void CreateAttachment(string fileName, int sizeInMB)
+		private MessageBody GetMailBody(string path)
+		{
+			MessageBody msgBody = null;
+			string ext = Path.GetExtension(path);
+			if (File.Exists(path) && (ext.Equals(".html", StringComparison.OrdinalIgnoreCase)
+				|| ext.Equals(".htm", StringComparison.OrdinalIgnoreCase)))
+			{
+				msgBody = new MessageBody();
+				msgBody.BodyType = BodyType.HTML;
+				msgBody.Text = File.ReadAllText(path);
+			}
+			return msgBody;
+		}
+
+		private string GetAttachmentTemplate(List<AttachmentsToCreate> attachmentsToCreates)
+		{
+			StringBuilder attachmentsTemplate = new StringBuilder();
+			if (attachmentsToCreates != null && attachmentsToCreates.Count > 0)
+			{
+				foreach (var attachmentToCreate in attachmentsToCreates)
+				{
+					attachmentsTemplate.AppendLine($"'{attachmentToCreate.Count}' attachments of size '{attachmentToCreate.AttachmentSizeInKB}Kb', ");
+				}
+			}
+			else
+			{
+				attachmentsTemplate.AppendLine($"zero attachments.");
+			}
+			return attachmentsTemplate.ToString(); ;
+		}
+
+		private void CreateAttachment(string fileName, int sizeInKB)
 		{
 			using (var fs = new FileStream(fileName, FileMode.Create, FileAccess.Write, FileShare.None))
 			{
-				fs.SetLength(sizeInMB * 1024 * 1024);
+				fs.SetLength(sizeInKB *  1024);
 			}
 		}
 
-		private void MailAttachments(string directory, int attachments, int sizeInMB, ref EmailMessage message)
+		private void MailAttachments(string directory, AttachmentsToCreate attachmentsToCreate, string prefix, ref EmailMessage message)
 		{
-			for(int i = 1; i <= attachments; i++)
+			if (attachmentsToCreate != null)
 			{
-				string attachmentName = $"Attachment_{i}_sizeInMB_{sizeInMB}.txt";
-				string fileName = Path.Combine(directory, attachmentName);
-				CreateAttachment(fileName, sizeInMB);
-				// Add a file attachment by using a stream, and specify the name of the attachment.
-				// The email attachment is named FourthAttachment.txt.
-				FileStream theStream = new FileStream(fileName, FileMode.OpenOrCreate);
-				// In this example, theStream is a Stream object that represents the content of the file to attach.
-				message.Attachments.AddFileAttachment(attachmentName, theStream);
+				for (int i = 1; i <= attachmentsToCreate.Count; i++)
+				{
+					string attachmentName = $"{prefix}_{i}_sizeInKB_{attachmentsToCreate.AttachmentSizeInKB}.txt";
+					string fileName = Path.Combine(directory, attachmentName);
+					CreateAttachment(fileName, attachmentsToCreate.AttachmentSizeInKB);
+					// Add a file attachment by using a stream, and specify the name of the attachment.
+					// The email attachment is named FourthAttachment.txt.
+					FileStream theStream = new FileStream(fileName, FileMode.OpenOrCreate);
+					// In this example, theStream is a Stream object that represents the content of the file to attach.
+					message.Attachments.AddFileAttachment(attachmentName, theStream);
+				}
 			}
 		}
 
-		public void CreateMails(MailsToCreate mailsToCreate, string folderId)
+		private void CreateMails(MailsToCreate mailsToCreate, string folderId, string prefix, string directory, int number)
 		{
-			for(int i = 1; i <= mailsToCreate.Mails; i++)
+			EmailMessage message = new EmailMessage(_EWSServiceWrapper.ExchangeService);
+			// Set properties on the email message.
+			if (mailsToCreate.To != null)
 			{
+				foreach (var toRecip in mailsToCreate.To)
+				{
+					message.ToRecipients.Add(toRecip);
+				}
+			}
+			else
+			{
+				message.ToRecipients.Add(_EWSServiceWrapper.Username);
+			}
+			message.From = new EmailAddress { Address = mailsToCreate.From };
+			message.Subject = $"{mailsToCreate.Subject}_{number}_{prefix} with attachments {mailsToCreate.AttachmentsToCreateList?.Sum(x => x.Count)} and attachment size {mailsToCreate.AttachmentsToCreateList?.Sum(x => x.Count * x.AttachmentSizeInKB)}KB";
+			MessageBody body = GetMailBody(mailsToCreate.BodyPath);
+			if(body != null)
+			{
+				message.Body = body;
+			}
+			else
+			{
+				message.Body = string.Format(EWSServiceConstants.MAIL_BODY_TEMPLATE, message.Subject, GetAttachmentTemplate(mailsToCreate.AttachmentsToCreateList));
+			}
+			if (mailsToCreate.AttachmentsToCreateList != null)
+			{
+				foreach (var attachmentToCreate in mailsToCreate.AttachmentsToCreateList)
+				{
+					MailAttachments(directory, attachmentToCreate, $"{prefix}_Attach_Set_{number}", ref message);
+				}
+			}
+			ExtendedPropertyDefinition PR_MESSAGE_FLAGS_msgflag_read = new ExtendedPropertyDefinition(3591, MapiPropertyType.Integer);
+			message.SetExtendedProperty(PR_MESSAGE_FLAGS_msgflag_read, 1);
+			message.Save(folderId);
+			Logger.FileLogger.Info($"Message with subject '{message.Subject}' and id '{message.Id.UniqueId}' created successfully.");
+		}
 
-				bool needRetry = true;
-				do
+		public void CreateMails(MailsToCreate mailsToCreate, string folderId, string prefix)
+		{
+			if (mailsToCreate != null)
+			{
+				for (int i = 1; i <= mailsToCreate.Count; i++)
 				{
 
-					string directory = Path.Combine(System.Environment.
-													 GetFolderPath(
-														 Environment.SpecialFolder.CommonApplicationData),
-													"TempAttachmentFolder");
-					DirectoryInfo di = Directory.CreateDirectory(directory);
-					try
+					bool needRetry = true;
+					int retryCount = 0;
+					do
 					{
 
-						EmailMessage message = new EmailMessage(_EWSServiceWrapper.ExchangeService);
-						// Set properties on the email message.
-						message.ToRecipients.Add(_EWSServiceWrapper.Username);
-						message.From = new EmailAddress { Address = mailsToCreate.From };
-						message.Subject = $"Mail message {i} with attachments {mailsToCreate.Attachments} and attachment size {mailsToCreate.AttachmentSizeInMB}";
-						MailAttachments(directory, mailsToCreate.Attachments, mailsToCreate.AttachmentSizeInMB, ref message);
-						//message.Body = "(1) Buy pizza, (2) Eat pizza";
-						ExtendedPropertyDefinition PR_MESSAGE_FLAGS_msgflag_read = new ExtendedPropertyDefinition(3591, MapiPropertyType.Integer);
-						message.SetExtendedProperty(PR_MESSAGE_FLAGS_msgflag_read, 1);
-						// This method call results in a CreateItem call to EWS.
-						message.Save(folderId);
-						needRetry = false;
-					}
-					catch (ServerBusyException ex)
-					{
-						Console.WriteLine($"Server is busy. Retrying after {ex.BackOffMilliseconds / 1000}sec");
-						Thread.Sleep(ex.BackOffMilliseconds);
-						needRetry = true;
-					}
-					finally
-					{
-						di.Delete(true);
-					}
-				} while (needRetry);
+						//string directory = Path.Combine(System.Environment.
+						//								 GetFolderPath(
+						//									 Environment.SpecialFolder.CommonApplicationData),
+						//								"TempAttachmentFolder");
+						string directory = $"{_EWSServiceWrapper.Username}_{DateTime.Now.ToString("yyyy - MM - dd HH - mm - ss - fff")}";
+						DirectoryInfo di = Directory.CreateDirectory(directory);
+						try
+						{
+
+							CreateMails(mailsToCreate, folderId, prefix, directory, i);
+							needRetry = false;
+						}
+						catch (ServerBusyException ex)
+						{
+							Console.WriteLine($"Server is busy. Retrying after {ex.BackOffMilliseconds / 1000}sec");
+							Logger.FileLogger.Warning($"Server is busy. Retrying after {ex.BackOffMilliseconds / 1000}sec");
+							Thread.Sleep(ex.BackOffMilliseconds);
+							needRetry = true;
+							retryCount++;
+						}
+						catch(Exception ex)
+						{
+							Console.WriteLine($"Exception occur while creating mails. Detail: {ex.Message}");
+							Logger.FileLogger.Error($"Exception occur while creating mails. Detail: {ex.Message}");
+							Console.WriteLine($"Retrying after {EWSServiceConstants.RETRY_AFTER / 1000}sec");
+							Logger.FileLogger.Warning($"Retrying after {EWSServiceConstants.RETRY_AFTER / 1000}sec");
+							Thread.Sleep(EWSServiceConstants.RETRY_AFTER);
+							needRetry = true;
+							retryCount++;
+						}
+						finally
+						{
+							if (di.Exists)
+							{
+								di.Delete(true);
+							}
+						}
+					} while (needRetry && retryCount < EWSServiceConstants.RETRY_COUNT);
+				}
 			}
+		}
+
+		public List<Item> GetItems(string folderId)
+		{
+			List<Item> items = new List<Item>();
+			PropertySet propertySet = new PropertySet
+			{
+				ItemSchema.Id,
+				ItemSchema.Size
+			};
+			bool isMoreAvailable = false;
+			string syncState = string.Empty;
+			do
+			{
+				var itemChanges = _EWSServiceWrapper.ExecuteCall(() => 
+									_EWSServiceWrapper.ExchangeService.SyncFolderItems(
+										folderId, propertySet, null, 512, SyncFolderItemsScope.NormalItems, syncState));
+				syncState = itemChanges.SyncState;
+				items.AddRange(itemChanges.Select(x => x.Item));
+				isMoreAvailable = itemChanges.MoreChangesAvailable;
+			} while (isMoreAvailable);
+
+			return items;
 		}
 	}
 }
