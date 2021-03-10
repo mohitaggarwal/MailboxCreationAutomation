@@ -1,17 +1,15 @@
 ﻿using MailboxCreationAutomation;
 using MailboxCreationAutomation.Model;
+using MailboxCreationAutomationConsole;
 using NDesk.Options;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
-using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 
-namespace MailboxCreationAutomationConsole
+namespace MailboxBackupTestConsole
 {
 	class Program
 	{
@@ -27,22 +25,22 @@ namespace MailboxCreationAutomationConsole
 
 			var p = new OptionSet()
 			{
-				{ "authenticationType=", "Type of authentication: 'Basic' or 'OAuth'.",
+				{ "at|authenticationType=", "Type of authentication: 'Basic' or 'OAuth'.",
 				  v => commandLineOptions.AuthenticationType = v },
-				{ "username=", "Mailbox username." ,
+				{ "u|username=", "Mailbox username." ,
 				  v => commandLineOptions.Username = v },
-				{ "password=", "Mailbox password." ,
+				{ "p|password=", "Mailbox password." ,
 				  v => commandLineOptions.Password = v },
-				{ "clientId=", "Azure app client Id." ,
+				{ "ci|clientId=", "Azure app client Id." ,
 				  v => commandLineOptions.ClientId = v },
-				{ "clientSecret=", "Azure app client secret." ,
+				{ "cs|clientSecret=", "Azure app client secret." ,
 				  v => commandLineOptions.ClientSecret = v },
-				{ "tenantId=", "Azure app tenant Id." ,
+				{ "t|tenantId=", "Azure app tenant Id." ,
 				  v => commandLineOptions.TenantId = v },
-				{ "impersonateUser=", "Impoersonate username." ,
+				{ "iu|impersonateUser=", "Impoersonate username." ,
 				  v => commandLineOptions.ImpersonateUser = v },
-				{ "jsonFile=", "Json file to create mailbox." ,
-				  v => commandLineOptions.JsonFile = v },
+				{ "fp|folderPrefixToIgnore=", "Folder prefix to ignore for backup." ,
+				  v => commandLineOptions.FolerPrefixToIgnore = v },
 				{ "h|help",  "List different options",
 				  v => commandLineOptions.ShowHelp = v != null }
 			};
@@ -77,7 +75,7 @@ namespace MailboxCreationAutomationConsole
 				ClientSecret = ConfigurationManager.AppSettings["clientSecret"],
 				TenantId = ConfigurationManager.AppSettings["tenantId"],
 				ImpersonateUser = ConfigurationManager.AppSettings["impersonateUser"],
-				JsonFile = ConfigurationManager.AppSettings["jsonFile"]
+				FolerPrefixToIgnore = ConfigurationManager.AppSettings["folderPrefixToIgnore"]
 			};
 			return commandLineOptions;
 		}
@@ -86,9 +84,9 @@ namespace MailboxCreationAutomationConsole
 		{
 			try
 			{
-				CommandLineOptions commandLineOptions = args.Count() > 0 ? ParseCommandLine(args): GetFromAppConfig();
+				CommandLineOptions commandLineOptions = args.Count() > 0 ? ParseCommandLine(args) : GetFromAppConfig();
 
-				if(!commandLineOptions.ShowHelp) 
+				if (!commandLineOptions.ShowHelp)
 				{
 					EWSServiceWrapper ewsServiceWrapper = null;
 					if (commandLineOptions.AuthenticationType.Equals("Basic", StringComparison.OrdinalIgnoreCase))
@@ -112,16 +110,14 @@ namespace MailboxCreationAutomationConsole
 						ewsServiceWrapper = new EWSServiceWrapper(oAuthInfo);
 					}
 
-					JsonSerializerSettings settings = new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.Auto };
-					MailboxToCreate mailboxToCreate = JsonConvert.DeserializeObject<MailboxToCreate>(File.ReadAllText(commandLineOptions.JsonFile), settings);
-					Mailbox mailbox = new Mailbox(ewsServiceWrapper, mailboxToCreate);
-					mailbox.CreateMailbox();
+					Mailbox mailbox = new Mailbox(ewsServiceWrapper);
+					mailbox.BackupMailbox(commandLineOptions.FolerPrefixToIgnore);
 				}
 			}
-			catch(Exception ex)
+			catch (Exception ex)
 			{
-				Logger.FileLogger.Error($"Exception occur while creating a mailbox. Detail: { ex.Message}");
-				Console.WriteLine($"Exception occur while creating a mailbox. Detail: { ex.Message}");
+				Logger.FileLogger.Error($"Exception occur while backing-up a mailbox. Detail: { ex.Message}");
+				Console.WriteLine($"Exception occur while  backing-up a mailbox. Detail: { ex.Message}");
 			}
 		}
 	}

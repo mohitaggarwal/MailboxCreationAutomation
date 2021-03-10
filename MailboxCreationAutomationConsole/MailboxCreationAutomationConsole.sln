@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MailboxCreationAutomation",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MultipleMailboxCreationAutomationConsole", "MultipleMailboxCreationAutomationConsole\MultipleMailboxCreationAutomationConsole.csproj", "{B5E04601-6F93-4BC5-9DB0-FD05AE8E4119}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MailboxBackupTestConsole", "MailboxBackupTestConsole\MailboxBackupTestConsole.csproj", "{1CF10E3A-7129-4056-A5C7-466E187C2FCB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{B5E04601-6F93-4BC5-9DB0-FD05AE8E4119}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B5E04601-6F93-4BC5-9DB0-FD05AE8E4119}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B5E04601-6F93-4BC5-9DB0-FD05AE8E4119}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1CF10E3A-7129-4056-A5C7-466E187C2FCB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1CF10E3A-7129-4056-A5C7-466E187C2FCB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1CF10E3A-7129-4056-A5C7-466E187C2FCB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1CF10E3A-7129-4056-A5C7-466E187C2FCB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

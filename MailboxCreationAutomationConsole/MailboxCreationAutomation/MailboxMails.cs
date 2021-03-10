@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -76,43 +77,55 @@ namespace MailboxCreationAutomation
 			}
 		}
 
-		private void CreateMails(MailsToCreate mailsToCreate, string folderId, string prefix, string directory, int number)
+		private void CreateMails(MailsToCreate mailsToCreate, string folderId, string prefix, int number)
 		{
-			EmailMessage message = new EmailMessage(_EWSServiceWrapper.ExchangeService);
-			// Set properties on the email message.
-			if (mailsToCreate.To != null)
+			string directory = $"{_EWSServiceWrapper.Username}_{DateTime.Now.ToString("yyyy - MM - dd HH - mm - ss - fff")}";
+			DirectoryInfo di = Directory.CreateDirectory(directory);
+			try
 			{
-				foreach (var toRecip in mailsToCreate.To)
+				EmailMessage message = new EmailMessage(_EWSServiceWrapper.ExchangeService);
+				// Set properties on the email message.
+				if (mailsToCreate.To != null)
 				{
-					message.ToRecipients.Add(toRecip);
+					foreach (var toRecip in mailsToCreate.To)
+					{
+						message.ToRecipients.Add(toRecip);
+					}
+				}
+				else
+				{
+					message.ToRecipients.Add(_EWSServiceWrapper.Username);
+				}
+				message.From = new EmailAddress { Address = mailsToCreate.From };
+				message.Subject = $"{mailsToCreate.Subject}_{number}_{prefix} with attachments {mailsToCreate.AttachmentsToCreateList?.Sum(x => x.Count)} and attachment size {mailsToCreate.AttachmentsToCreateList?.Sum(x => x.Count * x.AttachmentSizeInKB)}KB";
+				MessageBody body = GetMailBody(mailsToCreate.BodyPath);
+				if (body != null)
+				{
+					message.Body = body;
+				}
+				else
+				{
+					message.Body = string.Format(EWSServiceConstants.MAIL_BODY_TEMPLATE, message.Subject, GetAttachmentTemplate(mailsToCreate.AttachmentsToCreateList));
+				}
+				if (mailsToCreate.AttachmentsToCreateList != null)
+				{
+					foreach (var attachmentToCreate in mailsToCreate.AttachmentsToCreateList)
+					{
+						MailAttachments(directory, attachmentToCreate, $"{prefix}_Attach_Set_{number}", ref message);
+					}
+				}
+				ExtendedPropertyDefinition PR_MESSAGE_FLAGS_msgflag_read = new ExtendedPropertyDefinition(3591, MapiPropertyType.Integer);
+				message.SetExtendedProperty(PR_MESSAGE_FLAGS_msgflag_read, 1);
+				message.Save(folderId);
+				Logger.FileLogger.Info($"Message with subject '{message.Subject}' and id '{message.Id.UniqueId}' created successfully.");
+			}
+			finally
+			{
+				if (di.Exists)
+				{
+					di.Delete(true);
 				}
 			}
-			else
-			{
-				message.ToRecipients.Add(_EWSServiceWrapper.Username);
-			}
-			message.From = new EmailAddress { Address = mailsToCreate.From };
-			message.Subject = $"{mailsToCreate.Subject}_{number}_{prefix} with attachments {mailsToCreate.AttachmentsToCreateList?.Sum(x => x.Count)} and attachment size {mailsToCreate.AttachmentsToCreateList?.Sum(x => x.Count * x.AttachmentSizeInKB)}KB";
-			MessageBody body = GetMailBody(mailsToCreate.BodyPath);
-			if(body != null)
-			{
-				message.Body = body;
-			}
-			else
-			{
-				message.Body = string.Format(EWSServiceConstants.MAIL_BODY_TEMPLATE, message.Subject, GetAttachmentTemplate(mailsToCreate.AttachmentsToCreateList));
-			}
-			if (mailsToCreate.AttachmentsToCreateList != null)
-			{
-				foreach (var attachmentToCreate in mailsToCreate.AttachmentsToCreateList)
-				{
-					MailAttachments(directory, attachmentToCreate, $"{prefix}_Attach_Set_{number}", ref message);
-				}
-			}
-			ExtendedPropertyDefinition PR_MESSAGE_FLAGS_msgflag_read = new ExtendedPropertyDefinition(3591, MapiPropertyType.Integer);
-			message.SetExtendedProperty(PR_MESSAGE_FLAGS_msgflag_read, 1);
-			message.Save(folderId);
-			Logger.FileLogger.Info($"Message with subject '{message.Subject}' and id '{message.Id.UniqueId}' created successfully.");
 		}
 
 		public void CreateMails(MailsToCreate mailsToCreate, string folderId, string prefix)
@@ -121,50 +134,7 @@ namespace MailboxCreationAutomation
 			{
 				for (int i = 1; i <= mailsToCreate.Count; i++)
 				{
-
-					bool needRetry = true;
-					int retryCount = 0;
-					do
-					{
-
-						//string directory = Path.Combine(System.Environment.
-						//								 GetFolderPath(
-						//									 Environment.SpecialFolder.CommonApplicationData),
-						//								"TempAttachmentFolder");
-						string directory = $"{_EWSServiceWrapper.Username}_{DateTime.Now.ToString("yyyy - MM - dd HH - mm - ss - fff")}";
-						DirectoryInfo di = Directory.CreateDirectory(directory);
-						try
-						{
-
-							CreateMails(mailsToCreate, folderId, prefix, directory, i);
-							needRetry = false;
-						}
-						catch (ServerBusyException ex)
-						{
-							Console.WriteLine($"Server is busy. Retrying after {ex.BackOffMilliseconds / 1000}sec");
-							Logger.FileLogger.Warning($"Server is busy. Retrying after {ex.BackOffMilliseconds / 1000}sec");
-							Thread.Sleep(ex.BackOffMilliseconds);
-							needRetry = true;
-							retryCount++;
-						}
-						catch(Exception ex)
-						{
-							Console.WriteLine($"Exception occur while creating mails. Detail: {ex.Message}");
-							Logger.FileLogger.Error($"Exception occur while creating mails. Detail: {ex.Message}");
-							Console.WriteLine($"Retrying after {EWSServiceConstants.RETRY_AFTER / 1000}sec");
-							Logger.FileLogger.Warning($"Retrying after {EWSServiceConstants.RETRY_AFTER / 1000}sec");
-							Thread.Sleep(EWSServiceConstants.RETRY_AFTER);
-							needRetry = true;
-							retryCount++;
-						}
-						finally
-						{
-							if (di.Exists)
-							{
-								di.Delete(true);
-							}
-						}
-					} while (needRetry && retryCount < EWSServiceConstants.RETRY_COUNT);
+					_EWSServiceWrapper.ExecuteCall(() => CreateMails(mailsToCreate, folderId, prefix, i));
 				}
 			}
 		}
@@ -175,6 +145,7 @@ namespace MailboxCreationAutomation
 			PropertySet propertySet = new PropertySet
 			{
 				ItemSchema.Id,
+				ItemSchema.Subject,
 				ItemSchema.Size
 			};
 			bool isMoreAvailable = false;
@@ -190,6 +161,20 @@ namespace MailboxCreationAutomation
 			} while (isMoreAvailable);
 
 			return items;
+		}
+
+		public ExportItemsResponse ExportItem(ItemId itemId)
+		{
+			return _EWSServiceWrapper.ExecuteCall(() =>
+						_EWSServiceWrapper.ExchangeService
+						.ExportItems(new List<ItemId> { itemId}).FirstOrDefault());
+		}
+
+		public List<ExportItemsResponse> ExportItem(List<ItemId> itemIds)
+		{
+			return _EWSServiceWrapper.ExecuteCall(() =>
+						_EWSServiceWrapper.ExchangeService
+						.ExportItems(itemIds).ToList());
 		}
 	}
 }

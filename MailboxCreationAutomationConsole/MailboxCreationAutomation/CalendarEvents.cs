@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -251,61 +252,39 @@ namespace MailboxCreationAutomation
             }
         }
 
+        public void CreateEvents(CalendarEventsToCreate calendarEventsToCreate, string folderId, string prefix, int number)
+		{
+            string directory = $"{_EWSServiceWrapper.Username}_{DateTime.Now.ToString("yyyy - MM - dd HH - mm - ss - fff")}";
+            DirectoryInfo di = Directory.CreateDirectory(directory);
+            try
+            {
+                Appointment appointment = GetAppointment(calendarEventsToCreate.CalendarEvent, prefix, number);
+                if (calendarEventsToCreate.AttachmentsToCreateList != null)
+                {
+                    int j = 1;
+                    foreach (var attachmentToCreate in calendarEventsToCreate.AttachmentsToCreateList)
+                    {
+                        EventAttachments(directory, attachmentToCreate, $"{prefix}_Set_{j}", ref appointment);
+                        j++;
+                    }
+                }
+                appointment.Save(folderId, SendInvitationsMode.SendToNone);
+                Logger.FileLogger.Info($"Event with subject '{appointment.Subject}' and id '{appointment.Id.UniqueId}' created successfully.");
+            }
+            finally
+            {
+                if (di.Exists)
+                    di.Delete(true);
+            }
+
+        }
+
         public void CreateEvents(CalendarEventsToCreate calendarEventsToCreate, string folderId, string prefix)
 		{
 
             for (int i = 1; i <= calendarEventsToCreate.Count; i++)
             {
-                bool needRetry = true;
-                int retryCount = 0;
-                do
-                {
-                    //string directory = Path.Combine(System.Environment.
-                    //								 GetFolderPath(
-                    //									 Environment.SpecialFolder.CommonApplicationData),
-                    //								"TempAttachmentFolder");
-                    string directory = $"{_EWSServiceWrapper.Username}_{DateTime.Now.ToString("yyyy - MM - dd HH - mm - ss - fff")}";
-                    DirectoryInfo di = Directory.CreateDirectory(directory);
-                    try
-                    {
-                        Appointment appointment = GetAppointment(calendarEventsToCreate.CalendarEvent, prefix, i);
-                        if (calendarEventsToCreate.AttachmentsToCreateList != null)
-                        {
-                            int j = 1;
-                            foreach (var attachmentToCreate in calendarEventsToCreate.AttachmentsToCreateList)
-                            {
-                                EventAttachments(directory, attachmentToCreate, $"{prefix}_Set_{j}", ref appointment);
-                                j++;
-                            }
-                        }
-                        appointment.Save(folderId, SendInvitationsMode.SendToNone);
-                        Logger.FileLogger.Info($"Event with subject '{appointment.Subject}' and id '{appointment.Id.UniqueId}' created successfully.");
-                        needRetry = false;
-                    }
-                    catch (ServerBusyException ex)
-                    {
-                        Console.WriteLine($"Server is busy. Retrying after {ex.BackOffMilliseconds / 1000}sec");
-                        Logger.FileLogger.Warning($"Server is busy. Retrying after {ex.BackOffMilliseconds / 1000}sec");
-                        Thread.Sleep(ex.BackOffMilliseconds);
-                        needRetry = true;
-                        retryCount++;
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine($"Exception occur while creating events. Detail: {ex.Message}");
-                        Logger.FileLogger.Error($"Exception occur while creating events. Detail: {ex.Message}");
-                        Console.WriteLine($"Retrying after {EWSServiceConstants.RETRY_AFTER / 1000}sec");
-                        Logger.FileLogger.Warning($"Retrying after {EWSServiceConstants.RETRY_AFTER / 1000}sec");
-                        Thread.Sleep(EWSServiceConstants.RETRY_AFTER);
-                        needRetry = true;
-                        retryCount++;
-                    }
-                    finally
-                    {
-                        if(di.Exists)
-                            di.Delete(true);
-                    }
-                } while (needRetry && retryCount < EWSServiceConstants.RETRY_COUNT);
+                _EWSServiceWrapper.ExecuteCall(() => CreateEvents(calendarEventsToCreate, folderId, prefix, i));
             }
 		}
 	}

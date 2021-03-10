@@ -68,7 +68,9 @@ namespace MailboxCreationAutomation
 			{
 				FolderSchema.Id,
 				FolderSchema.DisplayName,
-				FolderSchema.TotalCount
+				FolderSchema.TotalCount,
+				FolderSchema.FolderClass,
+				FolderSchema.ParentFolderId
 			};
 			bool isMoreAvailable = false;
 			string syncState = string.Empty;

@@ -9,11 +9,16 @@ namespace MailboxCreationAutomation
 {
     public class EWSServiceWrapper
     {
-        public ExchangeService ExchangeService { get; set; }
-        public string Username { get; set; }
+        public ExchangeService ExchangeService { get; }
+        public string Username { get; }
+        
+        public BasicAuthInfo BasicAuthInfo { get; }
+
+        public OAuthInfo OAuthInfo { get; }
 
         public EWSServiceWrapper(BasicAuthInfo basicAuthInfo)
 		{
+            BasicAuthInfo = basicAuthInfo;
             TraceListener traceListener = new TraceListener();
             ExchangeService = new ExchangeService(ExchangeVersion.Exchange2013);
             ExchangeService.Credentials = new WebCredentials(basicAuthInfo.Username, basicAuthInfo.Password);
@@ -27,11 +32,13 @@ namespace MailboxCreationAutomation
 
         public EWSServiceWrapper(OAuthInfo oAuthInfo)
         {
+            OAuthInfo = oAuthInfo;
             TraceListener traceListener = new TraceListener();
             ExchangeService = new ExchangeService();
             ExchangeService.Url = new Uri(EWSServiceConstants.EWS_URL);
-            ExchangeService.Credentials = new OAuthCredentials(GetOAuthToken(oAuthInfo.ClientId, oAuthInfo.ClientSecret, oAuthInfo.TenantId));
+            ExchangeService.Credentials = new OAuthCredentials(GetOAuthToken());
             ExchangeService.ImpersonatedUserId = new ImpersonatedUserId(ConnectingIdType.SmtpAddress, oAuthInfo.ImpersonateUser);
+            ExchangeService.HttpHeaders.Add("X-AnchorMailbox", oAuthInfo.ImpersonateUser);
             ExchangeService.Timeout = 500000;
             //ExchangeService.TraceListener = traceListener;
             //ExchangeService.TraceEnabled = true;
@@ -39,13 +46,13 @@ namespace MailboxCreationAutomation
             Username = oAuthInfo.ImpersonateUser;
         }
 
-        public string GetOAuthToken(string appId, string clientSecret, string tenantId)
+        public string GetOAuthToken()
 		{
             // Using Microsoft.Identity.Client 4.22.0
             var cca = ConfidentialClientApplicationBuilder
-                .Create(appId)
-                .WithClientSecret(clientSecret)
-                .WithTenantId(tenantId)
+                .Create(OAuthInfo.ClientId)
+                .WithClientSecret(OAuthInfo.ClientSecret)
+                .WithTenantId(OAuthInfo.TenantId)
                 .Build();
 
             // The permission scope required for EWS access
@@ -54,6 +61,11 @@ namespace MailboxCreationAutomation
             //Make the token request
             var authResult = cca.AcquireTokenForClient(ewsScopes).ExecuteAsync().Result;
             return authResult.AccessToken;
+        }
+
+        public void RefreshAuthToken()
+		{
+            ExchangeService.Credentials = new OAuthCredentials(GetOAuthToken());
         }
 
         public void ExecuteCall(Action action)
@@ -66,6 +78,16 @@ namespace MailboxCreationAutomation
                 {
                     action();
                     needRetry = false;
+                }
+                catch (WebException webEx)
+                when (((HttpWebResponse)webEx.Response).StatusCode == HttpStatusCode.Unauthorized
+                        && ExchangeService.Credentials is OAuthCredentials)
+                {
+                    Console.WriteLine($"Token expire, thus refrshing the token");
+                    Logger.FileLogger.Warning($"Token expire, thus refrshing the token");
+                    RefreshAuthToken();
+                     needRetry = true;
+                    retryCount++;
                 }
                 catch (ServerBusyException ex)
                 {
@@ -99,6 +121,16 @@ namespace MailboxCreationAutomation
                 {
                     result = function();
                     needRetry = false;
+                }
+                catch(WebException webEx)
+                when (((HttpWebResponse)webEx.Response).StatusCode == HttpStatusCode.Unauthorized
+                        && ExchangeService.Credentials is OAuthCredentials)
+                {
+                    Console.WriteLine($"Token expire, thus refrshing the token");
+                    Logger.FileLogger.Warning($"Token expire, thus refrshing the token");
+                    ExchangeService.Credentials = new OAuthCredentials(GetOAuthToken());
+                    needRetry = true;
+                    retryCount++;
                 }
                 catch (ServerBusyException ex)
                 {
