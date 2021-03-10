@@ -4,12 +4,22 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 16.0.30503.244
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MailboxCreationAutomationConsole", "MailboxCreationAutomationConsole\MailboxCreationAutomationConsole.csproj", "{3C290DF0-6AAF-41ED-9C2D-9D3DF80E9F3D}"
+	ProjectSection(ProjectDependencies) = postProject
+		{F2E95F5B-5990-4555-9DC4-A4E5886FCAB0} = {F2E95F5B-5990-4555-9DC4-A4E5886FCAB0}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MailboxCreationAutomation", "MailboxCreationAutomation\MailboxCreationAutomation.csproj", "{F2E95F5B-5990-4555-9DC4-A4E5886FCAB0}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MultipleMailboxCreationAutomationConsole", "MultipleMailboxCreationAutomationConsole\MultipleMailboxCreationAutomationConsole.csproj", "{B5E04601-6F93-4BC5-9DB0-FD05AE8E4119}"
+	ProjectSection(ProjectDependencies) = postProject
+		{F2E95F5B-5990-4555-9DC4-A4E5886FCAB0} = {F2E95F5B-5990-4555-9DC4-A4E5886FCAB0}
+		{3C290DF0-6AAF-41ED-9C2D-9D3DF80E9F3D} = {3C290DF0-6AAF-41ED-9C2D-9D3DF80E9F3D}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MailboxBackupTestConsole", "MailboxBackupTestConsole\MailboxBackupTestConsole.csproj", "{1CF10E3A-7129-4056-A5C7-466E187C2FCB}"
+	ProjectSection(ProjectDependencies) = postProject
+		{F2E95F5B-5990-4555-9DC4-A4E5886FCAB0} = {F2E95F5B-5990-4555-9DC4-A4E5886FCAB0}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
