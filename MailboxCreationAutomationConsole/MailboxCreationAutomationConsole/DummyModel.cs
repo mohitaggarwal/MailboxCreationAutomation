@@ -1,4 +1,5 @@
 ﻿using MailboxCreationAutomation.Model;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +10,30 @@ namespace MailboxCreationAutomationConsole
 {
 	public class DummyModel
 	{
+		public ContactsToCreate GetContactsToCreate()
+		{
+			return new ContactsToCreate
+			{
+				Count = 3,
+				ContactToCreate = new ContactToCreate
+				{
+					GivenName = "Mohit",
+					Surname = "Aggarwal",
+					CompanyName = "Micro Focus",
+					BussinessPhone = "+91-9986385033",
+					HomeAddress = new AddressToCreate
+					{
+						Street = "27-J Yaseen Road",
+						City = "Amritsar",
+						State = "Punjab",
+						CountryOrRegion = "India",
+						PostalCode = "143001"
+					},
+					EmailAddress = "mohit.aggarwal2@microfocus.com"
+				}
+			};
+		}
+
 		public MailsToCreate GetMailsToCreate()
 		{
 			return new MailsToCreate
@@ -261,9 +286,51 @@ namespace MailboxCreationAutomationConsole
 							GetMonthlyPatternEvent()
 						}
 					}
+				},
+				RootContactFolder = "Contacts",
+				ContactFoldersToCreateList = new List<ContactFoldersToCreate>
+				{
+					new ContactFoldersToCreate
+					{
+						Prefix = "Test_Contacts",
+						Count = 2,
+						Levels = 1,
+						ContactsToCreateList = new List<ContactsToCreate>
+						{
+							GetContactsToCreate()
+						}
+					}
 				}
 			};
 			return mailboxToCreate;
+		}
+
+		public string GetDummyJson()
+		{
+			string json = JsonConvert.SerializeObject(GetMailboxToCreate(), Formatting.Indented, new JsonSerializerSettings
+							{
+								TypeNameHandling = TypeNameHandling.Auto
+							});
+			return json;
+		}
+
+		public string GetDummyUserToCreate()
+		{
+			UserToCreate userToCreate = new UserToCreate
+			{
+				DisplayName = "Test user from Graph",
+				MailNickName = "GraphUser",
+				UserPrinicpleName = "testgraphuser@dpo365backup.onmicrosoft.com",
+				Password = "Novell@1234",
+				UsageLocation = "IN",
+				LicenseSkuId = "c42b9cae-ea4f-4ab7-9717-81576235ccac"
+			};
+
+			string json = JsonConvert.SerializeObject(userToCreate, Formatting.Indented, new JsonSerializerSettings
+			{
+				TypeNameHandling = TypeNameHandling.Auto
+			});
+			return json;
 		}
 	}
 }

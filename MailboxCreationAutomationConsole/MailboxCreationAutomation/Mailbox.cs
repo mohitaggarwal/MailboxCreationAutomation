@@ -120,8 +120,31 @@ namespace MailboxCreationAutomation
 					}
 				}
 
+				ContactFolder contactFolder = new ContactFolder(_EWSServiceWrapper);
+				if (!string.IsNullOrEmpty(_MailboxToCreate.RootContactFolder))
+				{
+					string rootContactFolderId = contactFolder.CreateFolderAtRoot(_MailboxToCreate.RootContactFolder);
+					contactFolder.CreateContacts(_MailboxToCreate.RootContactsToCreates, rootContactFolderId, _MailboxToCreate.RootContactFolder);
+					if (_MailboxToCreate.ContactFoldersToCreateList != null)
+					{
+						foreach (var contactFoldersToCreate in _MailboxToCreate.ContactFoldersToCreateList)
+						{
+							contactFolder.CreateFolders(contactFoldersToCreate, rootContactFolderId);
+						}
+					}
+				}
+
 				Logger.FileLogger.Info($"Mailbox '{_EWSServiceWrapper.Username}' creation completed successfully.");
 				Console.WriteLine($"Mailbox '{_EWSServiceWrapper.Username}' creation completed successfully.");
+			}
+		}
+
+		public void EmptyMailbox()
+		{
+			if (_MailboxToCreate != null && _EWSServiceWrapper != null)
+			{
+				MailboxFolder mailboxFolder = new MailboxFolder(_EWSServiceWrapper);
+				mailboxFolder.EmptyMailbox();
 			}
 		}
 

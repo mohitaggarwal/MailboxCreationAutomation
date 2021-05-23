@@ -45,16 +45,32 @@ namespace MailboxCreationAutomation
 			return folderResults.FirstOrDefault();
 		}
 
-		public List<Folder> GetFolders(string parentFolderId)
+		public List<Folder> GetFolders(string parentFolderId, FolderTraversal folderTraversal)
 		{
 			List<Folder> folders = new List<Folder>();
 			bool moreAvail = false;
 			do
 			{
 				FolderView folderView = new FolderView(512);
-				folderView.Traversal = FolderTraversal.Deep;
+				folderView.Traversal = folderTraversal;
 				folderView.PropertySet = new PropertySet() { FolderSchema.Id, FolderSchema.DisplayName, FolderSchema.TotalCount};
 				var folderResults = _EWSServiceWrapper.ExecuteCall(() => _EWSServiceWrapper.ExchangeService.FindFolders(parentFolderId, folderView));
+				folders.AddRange(folderResults.ToList());
+				moreAvail = folderResults.MoreAvailable;
+			} while (moreAvail);
+			return folders;
+		}
+
+		public List<Folder> GetFolders(WellKnownFolderName parentFolder, FolderTraversal folderTraversal)
+		{
+			List<Folder> folders = new List<Folder>();
+			bool moreAvail = false;
+			do
+			{
+				FolderView folderView = new FolderView(512);
+				folderView.Traversal = folderTraversal;
+				folderView.PropertySet = new PropertySet() { FolderSchema.Id, FolderSchema.DisplayName, FolderSchema.TotalCount };
+				var folderResults = _EWSServiceWrapper.ExecuteCall(() => _EWSServiceWrapper.ExchangeService.FindFolders(parentFolder, folderView));
 				folders.AddRange(folderResults.ToList());
 				moreAvail = folderResults.MoreAvailable;
 			} while (moreAvail);
@@ -183,7 +199,7 @@ namespace MailboxCreationAutomation
 			Folder rootFolder = GetFolder(displayName, WellKnownFolderName.MsgFolderRoot);
 			if (rootFolder != null) {
 				int mailCount = rootFolder.TotalCount;
-				List<Folder> folders = GetFolders(rootFolder.Id.UniqueId);
+				List<Folder> folders = GetFolders(rootFolder.Id.UniqueId, FolderTraversal.Deep);
 				foreach (Folder folder in folders)
 				{
 					mailCount += folder.TotalCount;
@@ -212,6 +228,23 @@ namespace MailboxCreationAutomation
 			}
 			Logger.FileLogger.Info($"Mailbox size: {mailboxSize}, Total mail count: {mailCount}");
 			Console.WriteLine($"Mailbox size: {mailboxSize}");
+		}
+
+		public void EmptyMailbox()
+		{
+			List<Folder> folders = GetFolders(WellKnownFolderName.MsgFolderRoot, FolderTraversal.Shallow);
+			foreach(var folder in folders)
+			{
+				Console.WriteLine($"Display Name: {folder.DisplayName}");
+				if (folder is CalendarFolder)
+				{
+					Console.WriteLine($"Calendar folder.");
+				}
+				else
+				{
+					folder.Empty(DeleteMode.HardDelete, true);
+				}
+			}
 		}
 	}
 }

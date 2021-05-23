@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
-    <StartArguments>-authenticationType=OAuth -clientId=acc98107-38dc-4d18-8f9e-b341f643bd07 -clientSecret=3RYhAubhqCJstuUZ/VvUw5YD9VQ//5m4kXxiEVWy6Kg= -tenantId=dpo365backup.onmicrosoft.com -impersonateUser= TestBigMailUser%40dpo365backup.onmicrosoft.com -jsonFile=TestJson.json</StartArguments>
+    <StartArguments>-authenticationType=OAuth -clientId=acc98107-38dc-4d18-8f9e-b341f643bd07 -clientSecret=3RYhAubhqCJstuUZ/VvUw5YD9VQ//5m4kXxiEVWy6Kg= -tenantId=dpo365backup.onmicrosoft.com -impersonateUser=incrfailureUser%40dpo365backup.onmicrosoft.com -jsonFile=TestJson2.json</StartArguments>
   </PropertyGroup>
 </Project>

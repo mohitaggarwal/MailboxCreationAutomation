@@ -17,5 +17,8 @@ namespace MailboxCreationAutomationConsole
 		public string ImpersonateUser { get; set; }
 		public string JsonFile { get; set; }
 		public bool ShowHelp { get; set; }
+		public string  DeleteUser { get; set; }
+		public bool CreateUser { get; set; }
+
 	}
 }
