@@ -80,5 +80,11 @@ namespace MailboxCreationAutomation
 			}
 		}
 
+		public void DeleteEvent(string contactId)
+		{
+			Contact contact = Contact.Bind(_EWSServiceWrapper.ExchangeService, contactId);
+			contact.Delete(DeleteMode.HardDelete);
+		}
+
 	}
 }

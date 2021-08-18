@@ -10,6 +10,7 @@ using System.IO;
 using Newtonsoft.Json;
 using MailboxCreationAutomation.Model;
 using MailboxCreationAutomation;
+using Logger = MailboxCreationAutomation.Logger;
 
 namespace TestConsoleApp
 {
@@ -131,41 +132,94 @@ namespace TestConsoleApp
 			Console.WriteLine($"First full backup completed successfully.");
 		}
 
+		static void TestFullAndIncr()
+		{
+			int incrToRun = 3;
+			EWSServiceWrapper ewsServiceWrapper = null;
+			BasicAuthInfo basicAuthInfo = new BasicAuthInfo
+			{
+				Username = "LidiaH@dpo365backup.onmicrosoft.com",
+				Password = "Novell@12345"
+			};
+			ewsServiceWrapper = new EWSServiceWrapper(basicAuthInfo);
+			DPClient dpClient = new DPClient("administrator|iwf1118201|iwf1118201.hpeswlab.net", "Data*pr0", "iwf1118201.hpeswlab.net");
+
+			// First Full backup
+			RunFullBackup(dpClient, ewsServiceWrapper, "Lidia_Spec");
+
+			for (int i = 1; i <= incrToRun; i++)
+			{
+				RunIncrBackup(i, dpClient, ewsServiceWrapper, "Lidia_Spec");
+			}
+
+
+
+			//string jsonFile = @"TestJson2.json";
+			//JsonSerializerSettings settings = new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.Auto };
+			//MailboxToCreate mailboxToCreate = JsonConvert.DeserializeObject<MailboxToCreate>(File.ReadAllText(jsonFile), settings);
+			//Mailbox mailbox = new Mailbox(ewsServiceWrapper, mailboxToCreate);
+			//// First Full backup
+			//RunFullBackup(mailboxToCreate, mailbox, dpClient);
+
+			//for(int i=1; i<=incrToRun; i++)
+			//{
+			//	RunIncrBackup(i, mailboxToCreate, mailbox, dpClient);
+			//}
+		}
+
+		static void TestOneDriveDownload(OAuthInfo oAuthInfo, long chunkSize)
+		{
+			string chunksFolder = "ChunksDownload";
+			GraphServiceWrapper graphServiceWrapper = new GraphServiceWrapper(oAuthInfo);
+			string userId = "mohit_admin@dpo365backup.onmicrosoft.com";
+			Logger.Username = userId;
+
+			Console.WriteLine($"Chunk size: {chunkSize}");
+			Logger.FileLogger.Info($"Chunk size: {chunkSize}");
+
+			Drive drive = new Drive(graphServiceWrapper);
+			DriveItemService driveItem = new DriveItemService(graphServiceWrapper, userId);
+			string driveId = drive.GetDriveId(userId);
+			string nextLink = string.Empty;
+			string deltaLink = string.Empty;
+			var driveItems = driveItem.GetDriveItems(driveId, ref nextLink);
+			if (!Directory.Exists(chunksFolder))
+				Directory.CreateDirectory(chunksFolder);
+			foreach (var file in driveItems.Where(x => x.DriveItemType == DriveItemType.File))
+			{
+				var item = driveItem.GetFileItem(file.Id);
+				var watch = System.Diagnostics.Stopwatch.StartNew();
+				//driveItem.DownloadFile(item.Id, $"{streamFolder}\\{item.Name}").Wait();
+				string checkSum = driveItem.DownloadFileByChunks(item.Id, $"{chunksFolder}\\{item.Name}", chunkSize);
+				watch.Stop();
+
+				Console.WriteLine($"File '{file.Name}' download time: {watch.ElapsedMilliseconds} ms");
+				Logger.FileLogger.Info($"File '{file.Name}' download time: {watch.ElapsedMilliseconds} ms");
+
+				Console.WriteLine($"File '{item.Name}' Checksum: {item.CheckSum}, Calculated Checksum: {checkSum}, IsEqual: {item.CheckSum.Equals(checkSum)}");
+				Logger.FileLogger.Info($"File '{item.Name}' Checksum: {item.CheckSum}, Calculated Checksum: {checkSum}, IsEqual: {item.CheckSum.Equals(checkSum)}");
+			}
+			if (Directory.Exists(chunksFolder))
+				Directory.Delete(chunksFolder, true);
+		}
+
 		static void Main(string[] args)
 		{
 			try
 			{
-				int incrToRun = 3;
-				EWSServiceWrapper ewsServiceWrapper = null; 
-				BasicAuthInfo basicAuthInfo = new BasicAuthInfo
+				var oAuthInfo = new OAuthInfo
 				{
-					Username = "LidiaH@dpo365backup.onmicrosoft.com",
-					Password = "Novell@12345"
+					ClientId = "acc98107-38dc-4d18-8f9e-b341f643bd07",
+					ClientSecret = "3RYhAubhqCJstuUZ/VvUw5YD9VQ//5m4kXxiEVWy6Kg=",
+					TenantId = "dpo365backup.onmicrosoft.com",
+					ImpersonateUser = "mohit_admin@dpo365backup.onmicrosoft.com"
 				};
-				ewsServiceWrapper = new EWSServiceWrapper(basicAuthInfo);
-				DPClient dpClient = new DPClient("administrator|iwf1118201|iwf1118201.hpeswlab.net", "Data*pr0", "iwf1118201.hpeswlab.net");
 
-				// First Full backup
-				RunFullBackup(dpClient, ewsServiceWrapper, "Lidia_Spec");
-
-				for (int i = 1; i <= incrToRun; i++)
+				for (int i = 0; i < 5; i++)
 				{
-					RunIncrBackup(i, dpClient, ewsServiceWrapper, "Lidia_Spec");
+					TestOneDriveDownload(oAuthInfo, 10 * 1024 * 1024); // 10 MB chunk size
+					TestOneDriveDownload(oAuthInfo, 5 * 1024 * 1024); // 5 MB chunk size
 				}
-
-
-
-				//string jsonFile = @"TestJson2.json";
-				//JsonSerializerSettings settings = new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.Auto };
-				//MailboxToCreate mailboxToCreate = JsonConvert.DeserializeObject<MailboxToCreate>(File.ReadAllText(jsonFile), settings);
-				//Mailbox mailbox = new Mailbox(ewsServiceWrapper, mailboxToCreate);
-				//// First Full backup
-				//RunFullBackup(mailboxToCreate, mailbox, dpClient);
-
-				//for(int i=1; i<=incrToRun; i++)
-				//{
-				//	RunIncrBackup(i, mailboxToCreate, mailbox, dpClient);
-				//}
 			}
 			catch (Exception ex)
 			{

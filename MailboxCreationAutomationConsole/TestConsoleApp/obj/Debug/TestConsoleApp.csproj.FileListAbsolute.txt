@@ -1,0 +1,9 @@
+D:\Workspace\Learning\MailboxCreationAutomation\MailboxCreationAutomationConsole\Output\TestConsoleApp.exe.config
+D:\Workspace\Learning\MailboxCreationAutomation\MailboxCreationAutomationConsole\Output\TestConsoleApp.exe
+D:\Workspace\Learning\MailboxCreationAutomation\MailboxCreationAutomationConsole\Output\TestConsoleApp.pdb
+D:\Workspace\Learning\MailboxCreationAutomation\MailboxCreationAutomationConsole\TestConsoleApp\obj\Debug\TestConsoleApp.csprojAssemblyReference.cache
+D:\Workspace\Learning\MailboxCreationAutomation\MailboxCreationAutomationConsole\TestConsoleApp\obj\Debug\TestConsoleApp.exe.config
+D:\Workspace\Learning\MailboxCreationAutomation\MailboxCreationAutomationConsole\TestConsoleApp\obj\Debug\TestConsoleApp.csproj.CoreCompileInputs.cache
+D:\Workspace\Learning\MailboxCreationAutomation\MailboxCreationAutomationConsole\TestConsoleApp\obj\Debug\TestConsoleApp.csproj.CopyComplete
+D:\Workspace\Learning\MailboxCreationAutomation\MailboxCreationAutomationConsole\TestConsoleApp\obj\Debug\TestConsoleApp.exe
+D:\Workspace\Learning\MailboxCreationAutomation\MailboxCreationAutomationConsole\TestConsoleApp\obj\Debug\TestConsoleApp.pdb

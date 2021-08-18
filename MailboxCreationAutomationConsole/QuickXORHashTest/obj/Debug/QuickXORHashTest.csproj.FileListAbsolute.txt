@@ -1,0 +1,7 @@
+D:\Workspace\Learning\MailboxCreationAutomation\MailboxCreationAutomationConsole\QuickXORHashTest\bin\Debug\QuickXORHashTest.exe.config
+D:\Workspace\Learning\MailboxCreationAutomation\MailboxCreationAutomationConsole\QuickXORHashTest\bin\Debug\QuickXORHashTest.exe
+D:\Workspace\Learning\MailboxCreationAutomation\MailboxCreationAutomationConsole\QuickXORHashTest\bin\Debug\QuickXORHashTest.pdb
+D:\Workspace\Learning\MailboxCreationAutomation\MailboxCreationAutomationConsole\QuickXORHashTest\obj\Debug\QuickXORHashTest.csprojAssemblyReference.cache
+D:\Workspace\Learning\MailboxCreationAutomation\MailboxCreationAutomationConsole\QuickXORHashTest\obj\Debug\QuickXORHashTest.csproj.CoreCompileInputs.cache
+D:\Workspace\Learning\MailboxCreationAutomation\MailboxCreationAutomationConsole\QuickXORHashTest\obj\Debug\QuickXORHashTest.exe
+D:\Workspace\Learning\MailboxCreationAutomation\MailboxCreationAutomationConsole\QuickXORHashTest\obj\Debug\QuickXORHashTest.pdb

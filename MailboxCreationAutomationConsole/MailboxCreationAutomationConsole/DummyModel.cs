@@ -1,4 +1,5 @@
-﻿using MailboxCreationAutomation.Model;
+﻿using MailboxCreationAutomation;
+using MailboxCreationAutomation.Model;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -305,7 +306,7 @@ namespace MailboxCreationAutomationConsole
 			return mailboxToCreate;
 		}
 
-		public string GetDummyJson()
+		public string GetDummyMaiboxJson()
 		{
 			string json = JsonConvert.SerializeObject(GetMailboxToCreate(), Formatting.Indented, new JsonSerializerSettings
 							{
@@ -327,6 +328,70 @@ namespace MailboxCreationAutomationConsole
 			};
 
 			string json = JsonConvert.SerializeObject(userToCreate, Formatting.Indented, new JsonSerializerSettings
+			{
+				TypeNameHandling = TypeNameHandling.Auto
+			});
+			return json;
+		}
+
+		public OneDriveToCreate GetOneDriveToCreate()
+		{
+			return new OneDriveToCreate
+			{
+				RootFilesToCreate = new List<ODFileToCreate>
+				{
+					new ODFileToCreate
+					{
+						Prefix = "RootFiles1",
+						Count = 3,
+						SizeInKB = 5 * 1024
+					},
+					new ODFileToCreate
+					{
+						Prefix = "RootFiles2",
+						Count = 5,
+						SizeInKB = 512
+					}
+				},
+				FoldersToCreate = new List<ODFolderToCreate>
+				{
+					new ODFolderToCreate
+					{
+						Prefix = "Folder1",
+						Count = 2,
+						Levels = 3,
+						FilesToCreate = new List<ODFileToCreate>
+						{
+							new ODFileToCreate
+							{
+								Prefix = "Files1",
+								Count = 6,
+								SizeInKB = 1024
+							}
+						}
+					},
+					new ODFolderToCreate
+					{
+						Prefix = "Folder3",
+						Count = 5,
+						Levels = 5,
+						FilesToCreate = new List<ODFileToCreate>
+						{
+							new ODFileToCreate
+							{
+								Prefix = "Files1",
+								Count = 1,
+								SizeInKB = 10
+							}
+						}
+					}
+				}
+			};
+		}
+
+		public string GetDummyOneDriveJson()
+		{
+			string json = JsonConvert.SerializeObject(GetOneDriveToCreate(), Formatting.Indented, new JsonSerializerSettings
 			{
 				TypeNameHandling = TypeNameHandling.Auto
 			});

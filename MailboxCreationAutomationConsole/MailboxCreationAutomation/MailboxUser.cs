@@ -29,7 +29,7 @@ namespace MailboxCreationAutomation
 				UserPrincipalName = userToCreate.UserPrinicpleName,
 				PasswordProfile = new PasswordProfile
 				{
-					ForceChangePasswordNextSignIn = true,
+					ForceChangePasswordNextSignIn = false,
 					Password = userToCreate.Password
 				},
 				UsageLocation = userToCreate.UsageLocation

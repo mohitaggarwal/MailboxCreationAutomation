@@ -1,0 +1,13 @@
+﻿2021-07-25 17:42:16.926 [ERROR]   User: , Exception occur while creating a mailbox. Detail: One or more errors occurred.
+One or more errors occurred.
+2021-07-25 17:59:51.147 [ERROR]   User: , Exception occur while creating a mailbox. Detail: One or more errors occurred.
+One or more errors occurred.
+Code: itemNotFound
+Message: The resource could not be found.
+Inner error:
+	AdditionalData:
+	date: 2021-07-25T12:29:24
+	request-id: a097c572-3804-4a06-b4e2-95a24366c636
+	client-request-id: a097c572-3804-4a06-b4e2-95a24366c636
+ClientRequestId: a097c572-3804-4a06-b4e2-95a24366c636
+

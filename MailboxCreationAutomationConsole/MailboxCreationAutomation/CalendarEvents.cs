@@ -287,5 +287,11 @@ namespace MailboxCreationAutomation
                 _EWSServiceWrapper.ExecuteCall(() => CreateEvents(calendarEventsToCreate, folderId, prefix, i));
             }
 		}
-	}
+
+        public void DeleteEvent(string eventId)
+        {
+            Appointment appointment = Appointment.Bind(_EWSServiceWrapper.ExchangeService, eventId);
+            appointment.Delete(DeleteMode.HardDelete);
+        }
+    }
 }

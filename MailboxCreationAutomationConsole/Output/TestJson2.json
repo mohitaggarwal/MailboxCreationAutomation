@@ -1,0 +1,39 @@
+{
+   "RootFolder":"MyInbox",
+   "RootMailsToCreates":[
+   {
+         "To":[
+            "testuser@dpo365backup.onmicrosoft.com"
+         ],
+         "From":"mohit_admin@dpo365backup.onmicrosoft.com",
+         "Subject":"Testing mail with attachment 150 MB",
+         "BodyPath":"Untitled.htm",
+         "Count":1,
+         "AttachmentsToCreateList":[
+			{
+              "Count": 1,
+              "AttachmentSizeInKB": 153600
+            }
+		 ]
+    },
+	{
+         "To":[
+            "testuser@dpo365backup.onmicrosoft.com"
+         ],
+         "From":"mohit_admin@dpo365backup.onmicrosoft.com",
+         "Subject":"Testing mail with attachment 100 MB",
+         "BodyPath":"Untitled.htm",
+         "Count":2,
+         "AttachmentsToCreateList":[
+			{
+              "Count": 1,
+              "AttachmentSizeInKB": 102400
+            }
+		 ]
+    }
+   ],
+	"FoldersToCreateList":[],
+   "RootCalendar":"Calendar",
+   "RootCalendarEventsToCreates":[],
+   "CalendarsToCreateList":null
+}

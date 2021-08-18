@@ -1,0 +1,6 @@
+D:\Workspace\Learning\MailboxCreationAutomation\MailboxCreationAutomationConsole\Output\DPClientSDK.dll
+D:\Workspace\Learning\MailboxCreationAutomation\MailboxCreationAutomationConsole\Output\DPClientSDK.pdb
+D:\Workspace\Learning\MailboxCreationAutomation\MailboxCreationAutomationConsole\DPClientSDK\obj\Debug\DPClientSDK.csproj.CoreCompileInputs.cache
+D:\Workspace\Learning\MailboxCreationAutomation\MailboxCreationAutomationConsole\DPClientSDK\obj\Debug\DPClientSDK.csproj.CopyComplete
+D:\Workspace\Learning\MailboxCreationAutomation\MailboxCreationAutomationConsole\DPClientSDK\obj\Debug\DPClientSDK.dll
+D:\Workspace\Learning\MailboxCreationAutomation\MailboxCreationAutomationConsole\DPClientSDK\obj\Debug\DPClientSDK.pdb

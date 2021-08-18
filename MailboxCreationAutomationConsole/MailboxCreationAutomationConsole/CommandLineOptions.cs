@@ -19,6 +19,7 @@ namespace MailboxCreationAutomationConsole
 		public bool ShowHelp { get; set; }
 		public string  DeleteUser { get; set; }
 		public bool CreateUser { get; set; }
+		public bool CreateOneDrive { get; set; }
 
 	}
 }

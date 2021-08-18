@@ -1,0 +1,20 @@
+﻿2021-07-25 17:41:21.482 Logs\MailboxCreationAutomation__2021-07-25 17-41-21-477.log is created.
+2021-07-25 17:41:21.487 [INFO]    OneDrive 'mohit_admin@dpo365backup.onmicrosoft.com' creation started ...
+2021-07-25 17:41:30.912 [INFO]    Upload complete, item ID: 01VY6XMNF4JMFUUEXATVE3FLX4C2NZAW2F
+2021-07-25 17:41:30.917 [INFO]    File 'Root_Set_1_RootFiles1_File_1' and id '01VY6XMNF4JMFUUEXATVE3FLX4C2NZAW2F' created successfully.
+2021-07-25 17:41:33.160 [INFO]    Upload complete, item ID: 01VY6XMNBQ5V4J5VK6LFCYHXWTF3SF5KGH
+2021-07-25 17:41:33.167 [INFO]    File 'Root_Set_1_RootFiles1_File_2' and id '01VY6XMNBQ5V4J5VK6LFCYHXWTF3SF5KGH' created successfully.
+2021-07-25 17:41:35.231 [INFO]    Upload complete, item ID: 01VY6XMNBR56YJPZN7JJAKM3SFU7I3WTMK
+2021-07-25 17:41:35.233 [INFO]    File 'Root_Set_1_RootFiles1_File_3' and id '01VY6XMNBR56YJPZN7JJAKM3SFU7I3WTMK' created successfully.
+2021-07-25 17:41:36.735 [INFO]    Upload complete, item ID: 01VY6XMNBFHC3UTKYHTBDYGEXOA2YXVVAE
+2021-07-25 17:41:36.738 [INFO]    File 'Root_Set_2_RootFiles2_File_1' and id '01VY6XMNBFHC3UTKYHTBDYGEXOA2YXVVAE' created successfully.
+2021-07-25 17:41:38.655 [INFO]    Upload complete, item ID: 01VY6XMNBQ2NTY4WRQUZFYKWCI5IYQL4IW
+2021-07-25 17:41:38.658 [INFO]    File 'Root_Set_2_RootFiles2_File_2' and id '01VY6XMNBQ2NTY4WRQUZFYKWCI5IYQL4IW' created successfully.
+2021-07-25 17:41:40.410 [INFO]    Upload complete, item ID: 01VY6XMNHKRVTPD3LNQFC2IXJVWZEBJI7M
+2021-07-25 17:41:40.411 [INFO]    File 'Root_Set_2_RootFiles2_File_3' and id '01VY6XMNHKRVTPD3LNQFC2IXJVWZEBJI7M' created successfully.
+2021-07-25 17:41:42.388 [INFO]    Upload complete, item ID: 01VY6XMNBIS2OIYMLKXRBJGYAK2ZTSTESQ
+2021-07-25 17:41:42.390 [INFO]    File 'Root_Set_2_RootFiles2_File_4' and id '01VY6XMNBIS2OIYMLKXRBJGYAK2ZTSTESQ' created successfully.
+2021-07-25 17:41:43.953 [INFO]    Upload complete, item ID: 01VY6XMNCYR7JKUTAKSFBKALAD5WWDFLW4
+2021-07-25 17:41:43.959 [INFO]    File 'Root_Set_2_RootFiles2_File_5' and id '01VY6XMNCYR7JKUTAKSFBKALAD5WWDFLW4' created successfully.
+2021-07-25 17:42:16.925 [ERROR]   Exception occur while creating a mailbox. Detail: One or more errors occurred.
+One or more errors occurred.

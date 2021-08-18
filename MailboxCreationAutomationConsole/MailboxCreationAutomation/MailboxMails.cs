@@ -176,5 +176,11 @@ namespace MailboxCreationAutomation
 						_EWSServiceWrapper.ExchangeService
 						.ExportItems(itemIds).ToList());
 		}
+
+		public void DeleteMail(string mailId)
+		{
+			EmailMessage emailMessage = EmailMessage.Bind(_EWSServiceWrapper.ExchangeService, mailId);
+			emailMessage.Delete(DeleteMode.HardDelete);
+		}
 	}
 }

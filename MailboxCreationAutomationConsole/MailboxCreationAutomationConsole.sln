@@ -25,6 +25,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DPClientSDK", "DPClientSDK\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestConsoleApp", "TestConsoleApp\TestConsoleApp.csproj", "{A9C72A51-56BE-4646-B3BB-77ED7307AC67}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QuickXORHashTest", "QuickXORHashTest\QuickXORHashTest.csproj", "{233325A6-ED45-44D1-9F04-0D9A77DADE07}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -55,6 +57,10 @@ Global
 		{A9C72A51-56BE-4646-B3BB-77ED7307AC67}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A9C72A51-56BE-4646-B3BB-77ED7307AC67}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A9C72A51-56BE-4646-B3BB-77ED7307AC67}.Release|Any CPU.Build.0 = Release|Any CPU
+		{233325A6-ED45-44D1-9F04-0D9A77DADE07}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{233325A6-ED45-44D1-9F04-0D9A77DADE07}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{233325A6-ED45-44D1-9F04-0D9A77DADE07}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{233325A6-ED45-44D1-9F04-0D9A77DADE07}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

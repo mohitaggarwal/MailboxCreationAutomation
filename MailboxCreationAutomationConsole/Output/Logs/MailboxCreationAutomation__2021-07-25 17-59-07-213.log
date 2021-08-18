@@ -1,0 +1,13 @@
+﻿2021-07-25 17:59:07.217 Logs\MailboxCreationAutomation__2021-07-25 17-59-07-213.log is created.
+2021-07-25 17:59:07.231 [INFO]    OneDrive 'mohit_admin@dpo365backup.onmicrosoft.com' creation started ...
+2021-07-25 17:59:51.145 [ERROR]   Exception occur while creating a mailbox. Detail: One or more errors occurred.
+One or more errors occurred.
+Code: itemNotFound
+Message: The resource could not be found.
+Inner error:
+	AdditionalData:
+	date: 2021-07-25T12:29:24
+	request-id: a097c572-3804-4a06-b4e2-95a24366c636
+	client-request-id: a097c572-3804-4a06-b4e2-95a24366c636
+ClientRequestId: a097c572-3804-4a06-b4e2-95a24366c636
+

@@ -17,7 +17,7 @@ namespace MailboxCreationAutomationConsole
 	{
 		static string GetInnerExceptionMessage(Exception ex, string message)
 		{
-			if (ex == null || ex.InnerException == null)
+			if (ex == null)
 				return message;
 			else
 				return GetInnerExceptionMessage(ex.InnerException, $"{message}\n{ex.Message}");
@@ -55,6 +55,8 @@ namespace MailboxCreationAutomationConsole
 				  v => commandLineOptions.CreateUser = v != null },
 				{ "deleteUser=", "User to delete." ,
 				  v => commandLineOptions.DeleteUser = v },
+				{ "createOneDrive", "Create onedrive" ,
+				  v => commandLineOptions.CreateOneDrive = v != null },
 				{ "h|help",  "List different options",
 				  v => commandLineOptions.ShowHelp = v != null }
 			};
@@ -121,7 +123,7 @@ namespace MailboxCreationAutomationConsole
 			mailboxUser.DeleteUser(userId);
 		}
 
-		static void Main(string[] args)
+		public static void Run(string[] args)
 		{
 			try
 			{
@@ -148,10 +150,18 @@ namespace MailboxCreationAutomationConsole
 							TenantId = commandLineOptions.TenantId,
 							ImpersonateUser = commandLineOptions.ImpersonateUser
 						};
-						
+
 					}
 
-					if (commandLineOptions.CreateUser)
+					if(commandLineOptions.CreateOneDrive)
+					{
+						GraphServiceWrapper graphServiceWrapper = new GraphServiceWrapper(oAuthInfo);
+						JsonSerializerSettings settings = new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.Auto };
+						OneDriveToCreate oneDriveToCreate = JsonConvert.DeserializeObject<OneDriveToCreate>(File.ReadAllText(commandLineOptions.JsonFile), settings);
+						OneDrive oneDrive = new OneDrive(graphServiceWrapper, oneDriveToCreate, oAuthInfo.ImpersonateUser);
+						oneDrive.CreateOneDrive();
+					}
+					else if (commandLineOptions.CreateUser)
 					{
 						GraphServiceWrapper graphServiceWrapper = new GraphServiceWrapper(oAuthInfo);
 						JsonSerializerSettings settings = new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.Auto };
@@ -176,11 +186,52 @@ namespace MailboxCreationAutomationConsole
 					}
 				}
 			}
-			catch(Exception ex)
+			catch (Exception ex)
 			{
 				Logger.FileLogger.Error($"Exception occur while creating a mailbox. Detail: {GetInnerExceptionMessage(ex, ex.Message)}");
 				Console.WriteLine($"Exception occur while creating a mailbox. Detail: {GetInnerExceptionMessage(ex, ex.Message)}");
 			}
+		}
+
+		public static void TestCheckSum()
+		{
+			byte[] bytes1 = Encoding.ASCII.GetBytes("abc");
+			byte[] bytes2 = Encoding.ASCII.GetBytes("def");
+			byte[] bytes3 = Encoding.ASCII.GetBytes("abcdeff");
+			QuickXorHash quickXorHash1 = new QuickXorHash();
+			quickXorHash1.TransformBlock(bytes1, 0, bytes1.Length, bytes1, 0);
+			quickXorHash1.TransformBlock(bytes2, 0, bytes2.Length, bytes2, 0);
+			quickXorHash1.TransformFinalBlock(new byte[0], 0, 0);
+			string hashInChunks = Convert.ToBase64String(quickXorHash1.Hash);
+
+			QuickXorHash quickXorHash2 = new QuickXorHash();
+			quickXorHash2.TransformBlock(bytes3, 0, bytes3.Length, bytes3, 0);
+			quickXorHash2.TransformFinalBlock(new byte[0], 0, 0);
+			string hashFull = Convert.ToBase64String(quickXorHash2.Hash);
+
+			Console.WriteLine($"HashInChunks: {hashInChunks}, HashFull: {hashFull}, IsEqual: {hashFull.Equals(hashInChunks)}");
+		}
+
+		public static string CalculateHash(string filePath)
+		{
+			QuickXorHash quickXorHash = new QuickXorHash();
+			using (var stream = File.OpenRead(filePath))
+			{
+				byte[] buffer = new byte[5 * 1024 * 1024];
+				int bytesRead;
+				while ((bytesRead = stream.Read(buffer, 0, buffer.Length)) > 0)
+				{
+					quickXorHash.TransformBlock(buffer, 0, buffer.Length, buffer, 0);
+					Console.WriteLine($"Bytes Read: {bytesRead}");
+				}
+				quickXorHash.TransformFinalBlock(new byte[0], 0, 0);
+				return Convert.ToBase64String(quickXorHash.Hash);
+			}
+		}
+
+		static void Main(string[] args)
+		{
+			Run(args);
 		}
 	}
 }

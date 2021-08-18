@@ -1,0 +1,29 @@
+{
+  "RootFilesToCreate": [],
+  "FoldersToCreate": [
+    {
+      "Prefix": "Folder1",
+      "Count": 5,
+      "Levels": 1,
+      "FilesToCreate": [
+        {
+          "Prefix": "Files1",
+          "Count": 6,
+          "SizeInKB": 512
+        }
+      ]
+    },
+    {
+      "Prefix": "Folder2",
+      "Count": 1,
+      "Levels": 5,
+      "FilesToCreate": [
+        {
+          "Prefix": "Files1",
+          "Count": 1,
+          "SizeInKB": 50
+        }
+      ]
+    }
+  ]
+}
